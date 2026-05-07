@@ -100,12 +100,12 @@ The result represents a theoretical maximum and deterministic cost, not an avera
 
     def generate_table(self):
         ret = []
-        ret.append("| Type | Spend (EUR) | Spend (USD) | Share |")
-        ret.append("| :--- | :--- | :--- | :--- |")
+        ret.append('| Type | Spend (EUR) | Spend (USD) | Share |')
+        ret.append('| :--- | :--- | :--- | :--- |')
         for i in range(0, len(self.data)):
-            ret.append(f"|{self.data["tables"][i]}|{self.data["spend"][i] * self.euro_rate}|{float(self.data["spend"][i])} | in progress |")
-        ret.append("| |")
-        ret.append(f"| **Total** | **{sum(self.data['spend']) * self.euro_rate} EUR** |{sum(self.data['spend'])}** USD** | **100%** |")
+            ret.append(f'|{self.data["tables"][i]}|{self.data["spend"][i] * self.euro_rate}|{float(self.data["spend"][i])} | in progress |')
+        ret.append('| |')
+        ret.append(f'| **Total** | **{sum(self.data["spend"]) * self.euro_rate} EUR** |{sum(self.data['spend'])}** USD** | **100%** |')
 
         self.table = ""
         for r in ret:
