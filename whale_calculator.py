@@ -3,7 +3,7 @@ import requests
 import math
 
 AVRIGE_FOR_LIMITED_5 = 93
-USE_AIP = False
+USE_AIP = True
 
 class WhaleCalculator:
     def __init__(self):
@@ -171,6 +171,7 @@ class WhaleCalculator:
                 "spend": spend,
                 "table": table,
                 "color": color,
+                "share": (spend / self.total_spend) * 100
                 })
         
         data_add(name="Characters", spend=self.char_spend, table="All C6 characters", color="#ff9999")

@@ -18,6 +18,7 @@ class UpdateDocs:
                 "spend": [],
                 "tables": [],
                 "colors": [],
+                "shares": [],
                 }
 
         for i in data:
@@ -25,6 +26,7 @@ class UpdateDocs:
             self.data["spend"].append(i["spend"])
             self.data["tables"].append(i["table"])
             self.data["colors"].append(i["color"])
+            self.data["shares"].append(i["share"])
 
     def get_exchange_rate(self):
         try:
@@ -102,10 +104,11 @@ The result represents a theoretical maximum and deterministic cost, not an avera
         ret = []
         ret.append('| Type | Spend (EUR) | Spend (USD) | Share |')
         ret.append('| :--- | :--- | :--- | :--- |')
-        for i in range(0, len(self.data)):
-            ret.append(f'|{self.data["tables"][i]}|{self.data["spend"][i] * self.euro_rate}|{float(self.data["spend"][i])} | in progress |')
+        for i in range(0, len(self.data["names"])):
+            text = f'|{self.data["tables"][i]}|{(self.data["spend"][i] * self.euro_rate):.2f}|{self.data["spend"][i]:.2f} | {self.data["shares"][i]:.2f}% |'
+            ret.append(text)
         ret.append("| |")
-        ret.append(f'| **Total** | **{sum(self.data["spend"]) * self.euro_rate} EUR** |{sum(self.data["spend"])}** USD** | **100%** |')
+        ret.append(f'| **Total** | **{(sum(self.data["spend"]) * self.euro_rate):.2f} EUR** |{sum(self.data["spend"]):.2f}** USD** | **100%** |')
 
         self.table = ""
         for r in ret:

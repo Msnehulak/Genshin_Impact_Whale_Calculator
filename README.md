@@ -20,10 +20,13 @@ The result represents a theoretical maximum and deterministic cost, not an avera
 
 | Type | Spend (EUR) | Spend (USD) | Share |
 | :--- | :--- | :--- | :--- |
-|All C6 characters|104458.55309999999|107689.23 | in progress |
-|All R5 weapons|64207.578599999986|66193.37999999999 | in progress |
-|Welkin moon|329.1404|339.32 | in progress |
-|Battle pass|465.13439999999997|479.52 | in progress |
+|All C6 characters|93595.64|96490.35 | 51.32% |
+|All R5 weapons|57515.25|59294.07 | 31.54% |
+|Welkin moon|329.14|339.32 | 0.18% |
+|Battle pass|465.13|479.52 | 0.26% |
+|Battle pass levels|5431.46|5599.44 | 2.98% |
+|Daily resin refil|24538.55|25297.47 | 13.46% |
+|All Skins|484.95|499.95 | 0.27% |
 | |
-| **Total** | **199915.3607 EUR** |206098.31** USD** | **100%** |
+| **Total** | **182360.12 EUR** |188000.12** USD** | **100%** |
 
