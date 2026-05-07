@@ -21,7 +21,7 @@ jobs:
         run: pip install requests matplotlib
 
       - name: Run update script
-        run: python update_readme.py
+        run: python update_docs.py
 
       - name: Commit and push if changed
         run: |
