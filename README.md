@@ -20,12 +20,12 @@ The result represents a theoretical maximum and deterministic cost, not an avera
 ## Table Spend Distribution
 | Type | Spend (EUR) | Spend (USD) | Share |
 | :--- | :--- | :--- | :--- |
-| All C6 characters | 159746.95 EUR | 186681.33 USD | 67.1% |
-| All R5 weapons | 50739.12 EUR | 59294.07 USD | 21.3% |
-| Welkin Moon | 290.36 EUR | 339.32 USD | 0.1% |
-| Battle Pass | 410.33 EUR | 479.52 USD | 0.2% |
-| Battle Pass Level Up | 4791.55 EUR | 5599.44 USD | 2.0% |
-| Resin Refill | 21647.55 EUR | 25297.47 USD | 9.1% |
-| All skins | 427.82 EUR | 499.95 USD | 0.2% |
+| All C6 characters | 91557.38 EUR | 107689.23 USD | 52.3% |
+| All R5 weapons | 56277.61 EUR | 66193.38 USD | 32.1% |
+| Welkin Moon | 288.49 EUR | 339.32 USD | 0.2% |
+| Battle Pass | 407.69 EUR | 479.52 USD | 0.2% |
+| Battle Pass Level Up | 4760.64 EUR | 5599.44 USD | 2.7% |
+| Resin Refill | 21507.91 EUR | 25297.47 USD | 12.3% |
+| All skins | 425.06 EUR | 499.95 USD | 0.2% |
 | |
-| **Total** | **238053.69 EUR** | **278191.10 USD** | **100%** |
+| **Total** | **175224.78 EUR** | **206098.31 USD** | **100%** |
