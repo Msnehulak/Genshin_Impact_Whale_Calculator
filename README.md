@@ -1,4 +1,3 @@
-
 # Genshin Impact - Whale Calculator
 This is a calculator that estimates how much a Genshin Impact whale can spend in the game.
 
@@ -18,6 +17,7 @@ The result represents a theoretical maximum and deterministic cost, not an avera
 ![Whale Chart](spend_chart.png)
 
 ## Table Spend Distribution
+
 | Type | Spend (EUR) | Spend (USD) | Share |
 | :--- | :--- | :--- | :--- |
 | All C6 characters | 91557.38 EUR | 107689.23 USD | 52.3% |
@@ -29,3 +29,9 @@ The result represents a theoretical maximum and deterministic cost, not an avera
 | All skins | 425.06 EUR | 499.95 USD | 0.2% |
 | |
 | **Total** | **175224.78 EUR** | **206098.31 USD** | **100%** |
+|All C6 characters|104458.55309999999|107689.23 | in progress |
+|All R5 weapons|64207.578599999986|66193.37999999999 | in progress |
+|Welkin moon|329.1404|339.32 | in progress |
+|Battle pass|465.13439999999997|479.52 | in progress |
+| |
+| **Total** | **199915.3607 EUR** |206098.31** USD** | **100%** |

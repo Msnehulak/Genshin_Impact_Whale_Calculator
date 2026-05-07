@@ -1,5 +1,5 @@
 Directory structure:
-└── Whale_Calculator/
+└── Gi-spend-calculations/
     ├── README.md
     ├── LICENSE
     ├── update_readme.py
@@ -11,7 +11,6 @@ Directory structure:
 ================================================
 FILE: README.md
 ================================================
-
 # Genshin Impact - Whale Calculator
 This is a calculator that estimates how much a Genshin Impact whale can spend in the game.
 
@@ -31,17 +30,16 @@ The result represents a theoretical maximum and deterministic cost, not an avera
 ![Whale Chart](spend_chart.png)
 
 ## Table Spend Distribution
+
 | Type | Spend (EUR) | Spend (USD) | Share |
 | :--- | :--- | :--- | :--- |
-| All C6 characters | 159108.50 EUR | 186681.33 USD | 67.2% |
-| All R5 weapons | 50536.34 EUR | 59294.07 USD | 21.3% |
-| Welkin Moon | 284.95 EUR | 334.33 USD | 0.1% |
-| Battle Pass | 408.69 EUR | 479.52 USD | 0.2% |
-| Battle Pass Level Up | 4772.40 EUR | 5599.44 USD | 2.0% |
-| Resin Refill | 21390.59 EUR | 25097.49 USD | 9.0% |
-| All skins | 426.11 EUR | 499.95 USD | 0.2% |
+|All C6 characters|104458.55309999999|107689.23 | in progress |
+|All R5 weapons|64207.578599999986|66193.37999999999 | in progress |
+|Welkin moon|329.1404|339.32 | in progress |
+|Battle pass|465.13439999999997|479.52 | in progress |
 | |
-| **Total** | **236927.58 EUR** | **277986.13 USD** | **100%** |
+| **Total** | **199915.3607 EUR** |206098.31** USD** | **100%** |
+
 
 
 
@@ -75,7 +73,128 @@ SOFTWARE.
 ================================================
 FILE: update_readme.py
 ================================================
-Error reading file with 'cp1250': 'charmap' codec can't decode byte 0x98 in position 2716: character maps to <undefined>
+import whale_calculator
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import requests
+
+class UpdateDocs:
+    def __init__(self):
+        self.get_exchange_rate()
+        self.get_data()
+
+    def get_data(self):
+        WC = whale_calculator.WhaleCalculator()
+        data = WC.get_data()
+
+        self.data = {
+                "names": [],
+                "spend": [],
+                "tables": [],
+                "colors": [],
+                }
+
+        for i in data:
+            self.data["names"].append(i["name"])
+            self.data["spend"].append(i["spend"])
+            self.data["tables"].append(i["table"])
+            self.data["colors"].append(i["color"])
+
+    def get_exchange_rate(self):
+        try:
+            response = requests.get("https://api.frankfurter.app/latest?from=USD&to=EUR", timeout=10)
+            if response.status_code == 200:
+                self.euro_rate = response.json()["rates"]["EUR"]
+        except:
+            pass
+        self.euro_rate = 0.97
+   
+    def generate_pie_chart(self):
+        categories = self.data["names"]
+        values = self.data["spend"]
+        colors = self.data["colors"]
+
+        total = sum(values)
+        legend_labels = [f'{l}: {v/total*100:1.1f}%' for l, v in zip(categories, values)] 
+
+        fig, ax = plt.subplots(figsize=(14, 8), facecolor='none')
+
+        wedges, _ = ax.pie(
+            values, 
+            colors=colors, 
+            startangle=140, 
+            pctdistance=0.95,
+            labeldistance=1.1
+        )
+
+        ax.legend(
+            wedges, 
+            legend_labels,
+            title="Categories",
+            title_fontsize=21,
+            loc="center left",
+            bbox_to_anchor=(1, 0, 0.5, 1),
+            
+            fontsize=19,
+            frameon=False,
+        )
+
+        ax.set_title('Genshin Impact Whale Spend Distribution', pad=15, size=24)
+
+        plt.savefig('spend_chart.png', bbox_inches='tight', transparent=False, facecolor="white")
+        plt.close()
+
+    def generate_read_me(self):
+        self.generate_table()
+        self.generate_pie_chart()
+
+        mark_down = f"""# Genshin Impact - Whale Calculator
+This is a calculator that estimates how much a Genshin Impact whale can spend in the game.
+
+To remove randomness and make the result deterministic, the calculator assumes worst-case luck:
+- 180 pulls per 5★ character (guaranteed after losing the 50/50)
+- 80 pulls per 5★ weapon
+
+**Note:** 
+For characters, losing the 50/50 is required to reach the deterministic cost.
+For weapons, the model assumes a guaranteed limited 5★ weapon within the pity cycle and does not simulate additional losses.
+
+**!!!** 
+The result represents a theoretical maximum and deterministic cost, not an average or realistic outcome.
+
+## Pie Spend Distribution
+
+![Whale Chart](spend_chart.png)
+
+## Table Spend Distribution
+
+{self.table}
+"""
+        self.write_readme(mark_down)
+
+    def generate_table(self):
+        ret = []
+        ret.append("| Type | Spend (EUR) | Spend (USD) | Share |")
+        ret.append("| :--- | :--- | :--- | :--- |")
+        for i in range(0, len(self.data)):
+            ret.append(f"|{self.data["tables"][i]}|{self.data["spend"][i] * self.euro_rate}|{float(self.data["spend"][i])} | in progress |")
+        ret.append("| |")
+        ret.append(f"| **Total** | **{sum(self.data['spend']) * self.euro_rate} EUR** |{sum(self.data['spend'])}** USD** | **100%** |")
+
+        self.table = ""
+        for r in ret:
+            self.table += f"{r}\n"
+
+    @staticmethod
+    def write_readme(markdown):
+        with open("README.md", "w", encoding="utf-8") as f:
+            f.write(markdown)
+
+if __name__ == "__main__":
+    app = UpdateDocs()
+    app.generate_read_me()
+
 
 
 ================================================
@@ -85,8 +204,13 @@ from datetime import date
 import requests
 import math
 
-class whalecalculator:
+AVRIGE_FOR_LIMITED_5 = 93
+USE_AIP = False
+
+class WhaleCalculator:
     def __init__(self):
+        self.char_limited5_list = ['aether', 'albedo', 'alhaitham', 'aloy', 'arataki itto', 'arlecchino', 'baizhu', 'chasca', 'chiori', 'citlali', 'clorinde', 'columbina', 'cyno', 'dehya', 'diluc', 'durin', 'emilie', 'escoffier', 'eula', 'flins', 'furina', 'ganyu', 'hu tao', 'ineffa', 'jean', 'kaedehara kazuha', 'kamisato ayaka', 'kamisato ayato', 'keqing', 'kinich', 'klee', 'lauma', 'linnea', 'lumine', 'lyney', 'manekin', 'manekina', 'mavuika', 'mona', 'mualani', 'nahida', 'navia', 'nefer', 'neuvillette', 'nilou', 'qiqi', 'raiden shogun', 'sangonomiya kokomi', 'shenhe', 'sigewinne', 'skirk', 'tartaglia', 'tighnari', 'varesa', 'varka', 'venti', 'wanderer', 'wriothesley', 'xianyun', 'xiao', 'xilonen', 'yae miko', 'yelan', 'yoimiya', 'yumemizuki mizuki', 'zhongli', 'zibai']
+        self.char_standard5_list = ["Jean", "Diluc", "Qiqi", "Mona", "Keqing", "Tighnari", "Dehya", "Mizuki"]
         self.prices = {
             "welkin": 4.99,
             "battle_pass": 9.99,
@@ -105,37 +229,41 @@ class whalecalculator:
             "pull": 160
         }
         self.total_spend = 0
-        
 
-        self.release_date = date(2020, 9, 28)
-        self.today_date = date.today()
-        self.days_from_releas = self.today_date - self.release_date
-        self.days_from_releas = self.days_from_releas.days
-        self.versin_released = self.days_from_releas // (7 * 6) 
-
+        self.set_up_time()
         self.characters()
         self.weapons()
         self.welkin_moon()
         self.battle_pass()
         self.battle_pass_level_up()
-        self.daly_resin_refill()
+        self.daily_resin_refill()
         self.skins()
 
+    def set_up_time(self):
+        self.release_date = date(2020, 9, 28)
+        self.today_date = date.today()
+        self.days_from_releas = self.today_date - self.release_date
+        self.days_from_releas = self.days_from_releas.days
+        self.version_released = self.days_from_releas // (7 * 6) 
+
     def characters(self):
-        self.char_standard5_list = ["Jean", "Diluc", "Qiqi", "Mona", "Keqing", "Tighnari", "Dehya", "Mizuki"]
         self.char_standard5_count = len(self.char_standard5_list) 
         self.char_limited5char_list = self.get_limited_character_count()
         self.char_limited5_count = len(self.char_limited5char_list)
 
-        self.char_pulls_one_copy = 180
+        self.char_pulls_one_copy = AVRIGE_FOR_LIMITED_5
         self.char_pulls_C6 = self.char_pulls_one_copy * 7
         self.char_total_pulls = self.char_pulls_C6 * self.char_limited5_count
         self.char_total_primo = self.char_total_pulls * self.primo["pull"]
         self.char_spend = self.primo_to_usd(self.char_total_primo)
 
         self.total_spend += self.char_spend
-    
+
     def weapons(self):
+        """
+        All limited characters have thire signiture weapon.
+        In weapon baner don't have stadat weapons so dont have loss 50/50
+        """
         self.wpn_count = self.char_limited5_count
         self.wpn_pulls_one_copy = 80
         self.wpn_pulls_R5 = self.wpn_pulls_one_copy * 5
@@ -152,7 +280,7 @@ class whalecalculator:
         self.total_spend += self.welkin_moon_spend
 
     def battle_pass(self):
-        self.BP_owned = self.versin_released
+        self.BP_owned = self.version_released
         self.BP_spend = self.BP_owned * self.prices["battle_pass"]
         
         self.total_spend += self.BP_spend
@@ -165,7 +293,7 @@ class whalecalculator:
 
         self.total_spend += self.BP_LV_UP_spend 
 
-    def daly_resin_refill(self):
+    def daily_resin_refill(self):
         self.resin_refill_dayli_refil = sum(self.primo["refil_resin"])
         self.resin_refil_spend_primo = self.resin_refill_dayli_refil * self.days_from_releas
         self.resin_refil_spend = self.primo_to_usd(self.resin_refil_spend_primo)
@@ -184,7 +312,7 @@ class whalecalculator:
             1680, # A Sobriquet Under Shade - Lisa
             1680, # Blossoming Starlight - Klee
             1680, # Sailwind Shadow - Kaeya
-            1680, # Frostflower Dew - Ganyu
+            1680, # Frostflower Dew - Ganyu →
             1680, # Twilight Blossom - Shenhe
             1680, # Bamboo Rain - Xingqiu
             1680, # Breeze of Sabaa - Nilou
@@ -196,16 +324,19 @@ class whalecalculator:
         self.total_spend += self.skin_spend
 
     def get_limited_character_count(self):
-            # requests
-        url = "https://genshin-db-api.vercel.app/api/characters?query=5&matchCategories=true"
-        response = requests.get(url)
+            # requestr
+        if USE_AIP:
+            url = "https://genshin-db-api.vercel.app/api/characters?query=5&matchCategories=true"
+            response = requests.get(url, timeout=10)
         
-        if response.status_code == 200:
-            characters = list(response.json())
+            if response.status_code == 200:
+                characters = list(response.json())
+            else:
+                print("error, API don't work, using hard code list")
+                characters = self.char_standard5_list
         else:
-            print("error, API don't work, using hard code list")
-            characters = ['Aether', 'Albedo', 'Alhaitham', 'Aloy', 'Arataki Itto', 'Arlecchino', 'Baizhu', 'Chasca', 'Chiori', 'Citlali', 'Clorinde', 'Columbina', 'Cyno', 'Dehya', 'Diluc', 'Durin', 'Emilie', 'Escoffier', 'Eula', 'Flins', 'Furina', 'Ganyu', 'Hu Tao', 'Ineffa', 'Jean', 'Kaedehara Kazuha', 'Kamisato Ayaka', 'Kamisato Ayato', 'Keqing', 'Kinich', 'Klee', 'Lauma', 'Linnea', 'Lumine', 'Lyney', 'Manekin', 'Manekina', 'Mavuika', 'Mona', 'Mualani', 'Nahida', 'Navia', 'Nefer', 'Neuvillette', 'Nilou', 'Qiqi', 'Raiden Shogun', 'Sangonomiya Kokomi', 'Shenhe', 'Sigewinne', 'Skirk', 'Tartaglia', 'Tighnari', 'Varesa', 'Varka', 'Venti', 'Wanderer', 'Wriothesley', 'Xianyun', 'Xiao', 'Xilonen', 'Yae Miko', 'Yelan', 'Yoimiya', 'Yumemizuki Mizuki', 'Zhongli', 'Zibai']
-            
+            characters = self.char_limited5_list
+
             # Filter standard 5*
         limited5char = []
         for char in characters:
@@ -218,69 +349,41 @@ class whalecalculator:
     def primo_to_usd(self, primo, use_largest_bundle_only=True):
         """
         Convert primogems to USD.
-        use_largest_bundle_only = True  â†’ whale buys only 6480 packs
-        use_largest_bundle_only = False â†’ uses average across all packs
+        use_largest_bundle_only = True → use only the best bundel
+        use_largest_bundle_only = False → uses average across all packs
         """
         if use_largest_bundle_only:
             crys, price = self.prices["crystal"][5]
             return math.ceil(primo / crys) * price
+
         else:
             costs_per_crystal = []
-                
             for crys, price in self.prices["crystal"]:
                 costs_per_crystal.append(price / crys)
-            
             average_cost_per_crystal = sum(costs_per_crystal) / len(costs_per_crystal)
 
             return round(primo * average_cost_per_crystal, 2)
-            
 
-    def get_row_data(self):
-        return {
-            "Characters": {
-                "spend": self.char_spend
-            },
-            "Weapons": {
-                "spend": self.wpn_spend
-            },
-            "Welkin_Moon": {
-                "spend": self.welkin_moon_spend
-            },
-            "BP": {
-                "spend": self.BP_spend
-            },
-            "BP_LV_UP": {
-                "spend": self.BP_LV_UP_spend
-            },
-            "resin_refill": {
-                "spend": self.resin_refil_spend   
-            },
-            "skin": {
-                "spend": self.skin_spend
-            },
-            "total_spend": self.total_spend
-        }
+    def get_data(self):
+        ret = []
 
-    def main(self):
-        print(f"""
-{"="*40}
-            Total Spend
-all C6 characters   {self.char_spend:.2f} usd
-all R5 weapons      {self.wpn_spend:.2f} usd 
-Welkin Moon         {self.welkin_moon_spend:.2f} usd
-Battle Pass         {self.BP_spend:.2f} usd
-Battle Pass levl up {self.BP_LV_UP_spend:.2f} usd
-Refil Resin         {self.resin_refil_spend:.2f} usd
-Skins               {self.skin_spend:.2f} usd
+        def data_add(name="charters", spend=10, table ="All C6 characters", color="red"):
+            ret.append({
+                "name": name,
+                "spend": spend,
+                "table": table,
+                "color": color,
+                })
+        
+        data_add(name="Characters", spend=self.char_spend, table="All C6 characters", color="#ff9999")
+        data_add(name="Weapons", spend=self.wpn_spend, table="All R5 weapons", color="#ffd966")
+        data_add(name="Welkin moon", spend=self.welkin_moon_spend, table="Welkin moon", color="#99f1ff")
+        data_add(name="Battle pass", spend=self.BP_spend, table="Battle pass", color="#99acff")
+        data_add(name="BP levels", spend=self.BP_LV_UP_spend, table="Battle pass levels", color="#ffc965")
+        data_add(name="Resin refil", spend=self.resin_refil_spend, table="Daily resin refil", color="#eeff6b")
+        data_add(name="Skins", spend=self.skin_spend, table="All Skins", color="#e597ff")
+        return ret
 
-total               {self.total_spend:.2f} usd
-{"="*40}
-""")
-
-
-if __name__ == "__main__":    
-    wc = whalecalculator()
-    wc.main()
 
 
 ================================================

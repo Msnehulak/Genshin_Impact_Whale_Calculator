@@ -5,7 +5,7 @@ import math
 AVRIGE_FOR_LIMITED_5 = 93
 USE_AIP = False
 
-class whalecalculator:
+class WhaleCalculator:
     def __init__(self):
         self.char_limited5_list = ['aether', 'albedo', 'alhaitham', 'aloy', 'arataki itto', 'arlecchino', 'baizhu', 'chasca', 'chiori', 'citlali', 'clorinde', 'columbina', 'cyno', 'dehya', 'diluc', 'durin', 'emilie', 'escoffier', 'eula', 'flins', 'furina', 'ganyu', 'hu tao', 'ineffa', 'jean', 'kaedehara kazuha', 'kamisato ayaka', 'kamisato ayato', 'keqing', 'kinich', 'klee', 'lauma', 'linnea', 'lumine', 'lyney', 'manekin', 'manekina', 'mavuika', 'mona', 'mualani', 'nahida', 'navia', 'nefer', 'neuvillette', 'nilou', 'qiqi', 'raiden shogun', 'sangonomiya kokomi', 'shenhe', 'sigewinne', 'skirk', 'tartaglia', 'tighnari', 'varesa', 'varka', 'venti', 'wanderer', 'wriothesley', 'xianyun', 'xiao', 'xilonen', 'yae miko', 'yelan', 'yoimiya', 'yumemizuki mizuki', 'zhongli', 'zibai']
         self.char_standard5_list = ["Jean", "Diluc", "Qiqi", "Mona", "Keqing", "Tighnari", "Dehya", "Mizuki"]
@@ -28,12 +28,7 @@ class whalecalculator:
         }
         self.total_spend = 0
 
-        self.release_date = date(2020, 9, 28)
-        self.today_date = date.today()
-        self.days_from_releas = self.today_date - self.release_date
-        self.days_from_releas = self.days_from_releas.days
-        self.version_released = self.days_from_releas // (7 * 6) 
-
+        self.set_up_time()
         self.characters()
         self.weapons()
         self.welkin_moon()
@@ -42,8 +37,14 @@ class whalecalculator:
         self.daily_resin_refill()
         self.skins()
 
+    def set_up_time(self):
+        self.release_date = date(2020, 9, 28)
+        self.today_date = date.today()
+        self.days_from_releas = self.today_date - self.release_date
+        self.days_from_releas = self.days_from_releas.days
+        self.version_released = self.days_from_releas // (7 * 6) 
+
     def characters(self):
-        
         self.char_standard5_count = len(self.char_standard5_list) 
         self.char_limited5char_list = self.get_limited_character_count()
         self.char_limited5_count = len(self.char_limited5char_list)
@@ -55,10 +56,12 @@ class whalecalculator:
         self.char_spend = self.primo_to_usd(self.char_total_primo)
 
         self.total_spend += self.char_spend
-   
-           
 
     def weapons(self):
+        """
+        All limited characters have thire signiture weapon.
+        In weapon baner don't have stadat weapons so dont have loss 50/50
+        """
         self.wpn_count = self.char_limited5_count
         self.wpn_pulls_one_copy = 80
         self.wpn_pulls_R5 = self.wpn_pulls_one_copy * 5
@@ -107,7 +110,7 @@ class whalecalculator:
             1680, # A Sobriquet Under Shade - Lisa
             1680, # Blossoming Starlight - Klee
             1680, # Sailwind Shadow - Kaeya
-            1680, # Frostflower Dew - Ganyu
+            1680, # Frostflower Dew - Ganyu →
             1680, # Twilight Blossom - Shenhe
             1680, # Bamboo Rain - Xingqiu
             1680, # Breeze of Sabaa - Nilou
@@ -119,12 +122,11 @@ class whalecalculator:
         self.total_spend += self.skin_spend
 
     def get_limited_character_count(self):
-            # requests
+            # requestr
         if USE_AIP:
             url = "https://genshin-db-api.vercel.app/api/characters?query=5&matchCategories=true"
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)
         
-
             if response.status_code == 200:
                 characters = list(response.json())
             else:
@@ -145,66 +147,37 @@ class whalecalculator:
     def primo_to_usd(self, primo, use_largest_bundle_only=True):
         """
         Convert primogems to USD.
-        use_largest_bundle_only = True  → whale buys only 6480 packs
+        use_largest_bundle_only = True → use only the best bundel
         use_largest_bundle_only = False → uses average across all packs
         """
         if use_largest_bundle_only:
             crys, price = self.prices["crystal"][5]
             return math.ceil(primo / crys) * price
+
         else:
             costs_per_crystal = []
-                
             for crys, price in self.prices["crystal"]:
                 costs_per_crystal.append(price / crys)
-            
             average_cost_per_crystal = sum(costs_per_crystal) / len(costs_per_crystal)
 
             return round(primo * average_cost_per_crystal, 2)
-            
 
-    def get_row_data(self):
-        return {
-            "Characters": {
-                "spend": self.char_spend
-            },
-            "Weapons": {
-                "spend": self.wpn_spend
-            },
-            "Welkin_Moon": {
-                "spend": self.welkin_moon_spend
-            },
-            "BP": {
-                "spend": self.BP_spend
-            },
-            "BP_LV_UP": {
-                "spend": self.BP_LV_UP_spend
-            },
-            "resin_refill": {
-                "spend": self.resin_refil_spend   
-            },
-            "skin": {
-                "spend": self.skin_spend
-            },
-            "total_spend": self.total_spend
-        }
+    def get_data(self):
+        ret = []
 
-    def main(self):
-        print(f"""
-{"="*40}
-            Total Spend
-all C6 characters   {self.char_spend:.2f} usd
-all R5 weapons      {self.wpn_spend:.2f} usd 
-Welkin Moon         {self.welkin_moon_spend:.2f} usd
-Battle Pass         {self.BP_spend:.2f} usd
-Battle Pass levl up {self.BP_LV_UP_spend:.2f} usd
-Refil Resin         {self.resin_refil_spend:.2f} usd
-Skins               {self.skin_spend:.2f} usd
-
-total               {self.total_spend:.2f} usd
-{"="*40}
-""")
-
-
-if __name__ == "__main__":    
-    wc = whalecalculator()
-    wc.main()
+        def data_add(name="charters", spend=10, table ="All C6 characters", color="red"):
+            ret.append({
+                "name": name,
+                "spend": spend,
+                "table": table,
+                "color": color,
+                })
+        
+        data_add(name="Characters", spend=self.char_spend, table="All C6 characters", color="#ff9999")
+        data_add(name="Weapons", spend=self.wpn_spend, table="All R5 weapons", color="#ffd966")
+        data_add(name="Welkin moon", spend=self.welkin_moon_spend, table="Welkin moon", color="#99f1ff")
+        data_add(name="Battle pass", spend=self.BP_spend, table="Battle pass", color="#99acff")
+        data_add(name="BP levels", spend=self.BP_LV_UP_spend, table="Battle pass levels", color="#ffc965")
+        data_add(name="Resin refil", spend=self.resin_refil_spend, table="Daily resin refil", color="#eeff6b")
+        data_add(name="Skins", spend=self.skin_spend, table="All Skins", color="#e597ff")
+        return ret
