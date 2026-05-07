@@ -2,13 +2,15 @@ from datetime import date
 import requests
 import math
 
-AVRIGE_FOR_LIMITED_5 = 93
+AVERAGE_FOR_LIMITED_5 = 93
+AVERAGE_FOR_WEAPON = 67
 USE_AIP = True
 
 class WhaleCalculator:
     def __init__(self):
-        self.char_limited5_list = ['aether', 'albedo', 'alhaitham', 'aloy', 'arataki itto', 'arlecchino', 'baizhu', 'chasca', 'chiori', 'citlali', 'clorinde', 'columbina', 'cyno', 'dehya', 'diluc', 'durin', 'emilie', 'escoffier', 'eula', 'flins', 'furina', 'ganyu', 'hu tao', 'ineffa', 'jean', 'kaedehara kazuha', 'kamisato ayaka', 'kamisato ayato', 'keqing', 'kinich', 'klee', 'lauma', 'linnea', 'lumine', 'lyney', 'manekin', 'manekina', 'mavuika', 'mona', 'mualani', 'nahida', 'navia', 'nefer', 'neuvillette', 'nilou', 'qiqi', 'raiden shogun', 'sangonomiya kokomi', 'shenhe', 'sigewinne', 'skirk', 'tartaglia', 'tighnari', 'varesa', 'varka', 'venti', 'wanderer', 'wriothesley', 'xianyun', 'xiao', 'xilonen', 'yae miko', 'yelan', 'yoimiya', 'yumemizuki mizuki', 'zhongli', 'zibai']
+        self.char_limited5_list = ['albedo', 'alhaitham', 'arataki itto', 'arlecchino', 'baizhu', 'chasca', 'chiori', 'citlali', 'clorinde', 'columbina', 'cyno', 'dehya', 'diluc', 'durin', 'emilie', 'escoffier', 'eula', 'flins', 'furina', 'ganyu', 'hu tao', 'ineffa', 'jean', 'kaedehara kazuha', 'kamisato ayaka', 'kamisato ayato', 'keqing', 'kinich', 'klee', 'lauma', 'linnea', 'lyney', 'mavuika', 'mona', 'mualani', 'nahida', 'navia', 'nefer', 'neuvillette', 'nilou', 'qiqi', 'raiden shogun', 'sangonomiya kokomi', 'shenhe', 'sigewinne', 'skirk', 'tartaglia', 'tighnari', 'varesa', 'varka', 'venti', 'wanderer', 'wriothesley', 'xianyun', 'xiao', 'xilonen', 'yae miko', 'yelan', 'yoimiya', 'yumemizuki mizuki', 'zhongli', 'zibai']
         self.char_standard5_list = ["Jean", "Diluc", "Qiqi", "Mona", "Keqing", "Tighnari", "Dehya", "Mizuki"]
+        self.char_other = ['aether', 'aloy', 'lumine', 'manekin', 'manekina']
         self.prices = {
             "welkin": 4.99,
             "battle_pass": 9.99,
@@ -49,7 +51,7 @@ class WhaleCalculator:
         self.char_limited5char_list = self.get_limited_character_count()
         self.char_limited5_count = len(self.char_limited5char_list)
 
-        self.char_pulls_one_copy = AVRIGE_FOR_LIMITED_5
+        self.char_pulls_one_copy = AVERAGE_FOR_LIMITED_5
         self.char_pulls_C6 = self.char_pulls_one_copy * 7
         self.char_total_pulls = self.char_pulls_C6 * self.char_limited5_count
         self.char_total_primo = self.char_total_pulls * self.primo["pull"]
@@ -59,11 +61,11 @@ class WhaleCalculator:
 
     def weapons(self):
         """
-        All limited characters have thire signiture weapon.
+        All limited characters have their signature weapon.
         In weapon baner don't have stadat weapons so dont have loss 50/50
         """
         self.wpn_count = self.char_limited5_count
-        self.wpn_pulls_one_copy = 80
+        self.wpn_pulls_one_copy = AVERAGE_FOR_WEAPON 
         self.wpn_pulls_R5 = self.wpn_pulls_one_copy * 5
         self.wpn_total_pulls = self.wpn_pulls_R5 * self.wpn_count
         self.wpn_total_primo = self.wpn_total_pulls * self.primo["pull"]
@@ -92,8 +94,8 @@ class WhaleCalculator:
         self.total_spend += self.BP_LV_UP_spend 
 
     def daily_resin_refill(self):
-        self.resin_refill_dayli_refil = sum(self.primo["refil_resin"])
-        self.resin_refil_spend_primo = self.resin_refill_dayli_refil * self.days_from_releas
+        self.resin_refill_daily_refil = sum(self.primo["refil_resin"])
+        self.resin_refil_spend_primo = self.resin_refill_daily_refil * self.days_from_releas
         self.resin_refil_spend = self.primo_to_usd(self.resin_refil_spend_primo)
 
         self.total_spend += self.resin_refil_spend
@@ -138,7 +140,7 @@ class WhaleCalculator:
             # Filter standard 5*
         limited5char = []
         for char in characters:
-            if char in self.char_standard5_list:
+            if char in self.char_standard5_list or char in self.char_other:
                 pass
             else:
                 limited5char.append(char)
@@ -147,7 +149,7 @@ class WhaleCalculator:
     def primo_to_usd(self, primo, use_largest_bundle_only=True):
         """
         Convert primogems to USD.
-        use_largest_bundle_only = True → use only the best bundel
+        use_largest_bundle_only = True → use only the best bundle
         use_largest_bundle_only = False → uses average across all packs
         """
         if use_largest_bundle_only:
