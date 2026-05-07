@@ -22,7 +22,9 @@ jobs:
 
 
       - name: Run update script
-        run: python update_docs.py
+        run: |
+          cd $GITHUB_WORKSPACE
+          python update_docs.py
 
       - name: Commit and push if changed
         run: |
