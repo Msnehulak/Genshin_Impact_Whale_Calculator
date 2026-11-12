@@ -9,15 +9,15 @@ This is a calculator that estimates how much a Genshin Impact whale can spend in
 
 | Type | Spend (EUR) | Spend (USD) | Share |
 | :--- | :--- | :--- | :--- |
-|All C6 characters|102906.71|106089.39 | 54.16% |
-|All R5 weapons|52956.70|54594.54 | 27.87% |
+|All C6 characters|102906.71|106089.39 | 54.13% |
+|All R5 weapons|52956.70|54594.54 | 27.86% |
 |Welkin moon|358.18|369.26 | 0.19% |
 |Battle pass|513.59|529.47 | 0.27% |
 |Battle pass levels|6013.40|6199.38 | 3.16% |
-|Daily resin refil|26769.32|27597.24 | 14.09% |
+|Daily resin refil|26866.31|27697.23 | 14.13% |
 |All Skins|484.95|499.95 | 0.26% |
 | |
-| **Total** | **190002.85 EUR** |195879.23** USD** | **100%** |
+| **Total** | **190099.84 EUR** |195979.22** USD** | **100%** |
 
 
 **!!!** 
